@@ -19,16 +19,30 @@ package com.github.black.crypto;
 import com.github.black.crypto.digests.SM3;
 import com.github.black.crypto.util.Hex;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * 国密的静态工具类
  */
 public class GMUtil {
 
+    private static byte[] getBytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
+    }
+
     public static byte[] sm3(byte[] bytes) {
         return new SM3().digest(bytes);
     }
 
+    public static byte[] sm3(String str) {
+        return sm3(getBytes(str));
+    }
+
     public static String sm3Hex(byte[] bytes) {
         return Hex.encodeHex(sm3(bytes));
+    }
+
+    public static String sm3Hex(String str) {
+        return sm3Hex(getBytes(str));
     }
 }
