@@ -1,5 +1,5 @@
 /*
- * Copyright [2021] [https://github.com/black-06]
+ * Copyright 2021 hello.bug@foxmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

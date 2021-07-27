@@ -2,7 +2,7 @@
 
 [English](https://github.com/black-06/gm4j/wiki/English-Page)
 
-gm4j 是国密算法的 java 实现
+gm4j 是国密算法的 java 实现,参见[密码行业标准化技术委员会](http://www.gmbz.org.cn/)
 
 ## 功能
 
@@ -20,7 +20,7 @@ byte[] abc = "abc".getBytes(StandardCharsets.US_ASCII);
 GMUtil.sm3(abc);
 // or
 GMProvider provider = new GMProvider();
-MessageDigest digest = MessageDigest.getInstance(algorithm,provider);
+MessageDigest digest = MessageDigest.getInstance("SM3", provider);
 digest.digest(abc);
 ```
 

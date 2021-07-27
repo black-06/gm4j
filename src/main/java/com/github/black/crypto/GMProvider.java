@@ -1,5 +1,5 @@
 /*
- * Copyright [2021] [https://github.com/black-06]
+ * Copyright 2021 hello.bug@foxmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ public class GMProvider extends Provider {
 
     public GMProvider() {
         super("GM", 1.0, "GM Security Provider v1.0 By Mr.Black");
-        super.put("MessageDigest.SM3", SM3.class.getName());
+        String SM3 = SM3.class.getName();
+        super.put("MessageDigest.SM3", SM3);
+        super.put("Alg.Alias.MessageDigest.1.2.156.10197.1.401", SM3);
     }
 }
