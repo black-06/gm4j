@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import com.github.black.crypto.GMUtil;
+package com.github.black.crypto;
+
 import org.junit.Assert;
 import org.junit.Test;
 

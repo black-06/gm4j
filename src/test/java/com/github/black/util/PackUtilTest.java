@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.github.black.util;
+
 import com.github.black.crypto.util.PackUtil;
 import org.junit.Assert;
 import org.junit.Test;

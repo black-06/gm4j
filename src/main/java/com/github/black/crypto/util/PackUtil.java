@@ -16,6 +16,7 @@
 
 package com.github.black.crypto.util;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -51,9 +52,26 @@ public class PackUtil {
         bytes[++offset] = (byte) (n);
     }
 
-    public static void main(String[] args) {
-        System.out.println(Integer.toBinaryString(bigEndianToInt(new byte[]{97, 98, 99, 0}, 0)));
-        System.out.println(Integer.toBinaryString(bigEndianToInt(new byte[]{97, 98, 99, (byte) 128}, 0)));
+    /**
+     * 将大数转换为指定长度的无符号字节数组,必要时使用前导0填充
+     *
+     * @param integer 要转换的大数
+     * @param length  字节数组长度
+     * @return 无符号字节数组
+     */
+    public static byte[] toUnsignedByteArray(BigInteger integer, int length) {
+        byte[] bytes = integer.toByteArray();
+        if (bytes.length == length) {
+            return bytes;
+        }
+        int start = (bytes[0] == 0 && bytes.length != 1) ? 1 : 0;
+        int count = bytes.length - start;
+        if (count > length) {
+            throw new IllegalArgumentException("standard length exceeded for value");
+        }
 
+        byte[] tmp = new byte[length];
+        System.arraycopy(bytes, start, tmp, tmp.length - count, count);
+        return tmp;
     }
 }

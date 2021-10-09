@@ -41,4 +41,29 @@ public class Hex {
         }
         return new String(out);
     }
+
+    /**
+     * 将十六进制字符串转换为字节数组
+     *
+     * @param hexData 十六进制字符串
+     * @return 字节数组
+     */
+    public static byte[] decodeHex(String hexData) {
+        int len = hexData.length();
+        if ((len & 0x01) != 0) {
+            hexData = "0" + hexData;
+            len = hexData.length();
+        }
+        final byte[] out = new byte[len >> 1];
+        char[] data = hexData.toCharArray();
+        for (int i = 0, j = 0; j < len; i++) {
+            int f = Character.digit(data[j], 16) << 4;
+            j++;
+            f = f | Character.digit(data[j], 16);
+            j++;
+            out[i] = (byte) (f & 0xFF);
+        }
+        return out;
+    }
+
 }

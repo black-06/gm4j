@@ -14,25 +14,30 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto;
+package com.github.black.crypto.util;
 
-import com.github.black.crypto.digests.SM2;
-import com.github.black.crypto.digests.SM3;
+import com.github.black.ec.ECPoint;
 
-import java.security.Provider;
+import java.math.BigInteger;
 
 /**
- * 国密 Provider
+ * 秘钥对
  */
-public class GMProvider extends Provider {
+public class KeyPair {
 
-    public GMProvider() {
-        super("GM", 1.0, "GM Security Provider v1.0 By Mr.Black");
-        String sm2 = SM2.class.getName();
-        super.put("MessageDigest.SM2", sm2);
-        super.put("Alg.Alias.MessageDigest.1.2.156.10197.1.301", sm2);
-        String sm3 = SM3.class.getName();
-        super.put("MessageDigest.SM3", sm3);
-        super.put("Alg.Alias.MessageDigest.1.2.156.10197.1.401", sm3);
+    private final BigInteger privateKey;
+    private final ECPoint publicKey;
+
+    public KeyPair(BigInteger privateKey, ECPoint publicKey) {
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+    }
+
+    public ECPoint getPublicKey() {
+        return publicKey;
+    }
+
+    public BigInteger getPrivateKey() {
+        return privateKey;
     }
 }
