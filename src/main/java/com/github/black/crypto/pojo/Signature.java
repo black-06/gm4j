@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto.util;
+package com.github.black.crypto.pojo;
 
 import java.math.BigInteger;
 

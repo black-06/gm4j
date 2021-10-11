@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto.util;
+package com.github.black.exception;
 
-import com.github.black.ec.ECPoint;
-
-import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 
 /**
- * 秘钥对
+ * 秘钥协商异常,当协商失败时抛出
  */
-public class KeyPair {
+public class KeyAgreementException extends GeneralSecurityException {
 
-    private final BigInteger privateKey;
-    private final ECPoint publicKey;
-
-    public KeyPair(BigInteger privateKey, ECPoint publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
+    public KeyAgreementException(String msg) {
+        super(msg);
     }
 
-    public ECPoint getPublicKey() {
-        return publicKey;
-    }
-
-    public BigInteger getPrivateKey() {
-        return privateKey;
-    }
 }

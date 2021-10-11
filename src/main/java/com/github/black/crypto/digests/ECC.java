@@ -16,10 +16,10 @@
 
 package com.github.black.crypto.digests;
 
+import com.github.black.crypto.pojo.KeyPair;
+import com.github.black.crypto.pojo.Signature;
 import com.github.black.crypto.util.Hex;
-import com.github.black.crypto.util.KeyPair;
 import com.github.black.crypto.util.RandomUtil;
-import com.github.black.crypto.util.Signature;
 import com.github.black.ec.ECOverPF;
 import com.github.black.ec.ECPoint;
 
@@ -91,11 +91,11 @@ public class ECC {
     /**
      * 生成对称秘钥
      *
-     * @param otherPublicKey 对方的公钥
      * @param privateKey     私钥
+     * @param otherPublicKey 对方的公钥
      * @return 对称秘钥
      */
-    public ECPoint generateSymmetricKey(ECPoint otherPublicKey, BigInteger privateKey) {
+    public ECPoint generateSymmetricKey(BigInteger privateKey, ECPoint otherPublicKey) {
         return this.curve.multiply(otherPublicKey, privateKey);
     }
 

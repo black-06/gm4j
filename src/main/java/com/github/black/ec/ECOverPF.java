@@ -141,6 +141,13 @@ public class ECOverPF extends ECOverGF {
     }
 
     /**
+     * 辅因子: 曲线点数与 G 点阶数之间的关系
+     */
+    public BigInteger getH() {
+        return h;
+    }
+
+    /**
      * 验证点 P 是否属于椭圆曲线
      */
     @Override

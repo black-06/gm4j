@@ -63,4 +63,7 @@ public abstract class ECOverGF {
      */
     public abstract void checkPoint(ECPoint p);
 
+    public boolean isInfinity(ECPoint p) {
+        return p == INFINITY;
+    }
 }

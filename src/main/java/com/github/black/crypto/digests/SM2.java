@@ -16,20 +16,37 @@
 
 package com.github.black.crypto.digests;
 
+import com.github.black.crypto.GMUtil;
+import com.github.black.crypto.pojo.KeyPair;
+import com.github.black.crypto.pojo.Signature;
 import com.github.black.crypto.util.Hex;
-import com.github.black.crypto.util.KeyPair;
+import com.github.black.crypto.util.PackUtil;
 import com.github.black.crypto.util.RandomUtil;
-import com.github.black.crypto.util.Signature;
 import com.github.black.ec.ECOverPF;
 import com.github.black.ec.ECPoint;
+import com.github.black.exception.KeyAgreementException;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
+/**
+ * GM/T 0003-2012 SM2 椭圆曲线公钥密码算法.
+ * 中文 PDF1 总则        http://www.gmbz.org.cn/main/viewfile/20180108015515787986.html
+ * 中文 PDF2 数字签名算法 http://www.gmbz.org.cn/main/viewfile/20180108023346264349.html
+ * 中文 PDF3 密钥交换协议 http://www.gmbz.org.cn/main/viewfile/20180108023456003485.html
+ * 中文 PDF4 公钥加密算法 http://www.gmbz.org.cn/main/viewfile/20180108023602687857.html
+ * 中文 PDF5 参数定义    http://www.gmbz.org.cn/main/viewfile/2018010802371372251.html
+ * <p>
+ * Implementation of chinese public key cryptographic algorithm sm2 Based on Elliptic Curves as described at
+ * https://tools.ietf.org/html/draft-shen-sm2-ecdsa-02.
+ */
 public class SM2 extends MessageDigest {
 
     private static final byte[] ID = "1234567812345678".getBytes(StandardCharsets.UTF_8);
+    /**
+     * PDF5.2 参数定义
+     */
     private static final ECOverPF CURVE = new ECOverPF(
             new BigInteger("FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC", 16),
             new BigInteger("28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93", 16),
@@ -45,11 +62,8 @@ public class SM2 extends MessageDigest {
     private final byte[] arrayGX;
     private final byte[] arrayGY;
 
-    private final byte[] id;
-    private final KeyPair keyPair;
-
     /**
-     * 按照 SM2 给定参数构造
+     * 按照 SM2 规范参数构造
      */
     public SM2() {
         this(CURVE, null, null);
@@ -75,7 +89,6 @@ public class SM2 extends MessageDigest {
         this(new ECOverPF(a, b, p, gx, gy, n, h), id, keyPair);
     }
 
-
     public SM2(ECOverPF curve, byte[] id, KeyPair keyPair) {
         super("MessageDigest.SM2");
         this.curve = curve;
@@ -84,8 +97,6 @@ public class SM2 extends MessageDigest {
         this.arrayB = curve.getB().toByteArray();
         this.arrayGX = curve.getG().getX().toByteArray();
         this.arrayGY = curve.getG().getY().toByteArray();
-        this.id = id == null ? ID : id;
-        this.keyPair = keyPair == null ? generateKeyPair() : keyPair;
     }
 
     @Override
@@ -134,32 +145,118 @@ public class SM2 extends MessageDigest {
         return sm3.digest();
     }
 
+    /**
+     * 生成私钥
+     *
+     * @return 私钥
+     */
     public BigInteger generatePrivateKey() {
         return RandomUtil.randomBigDecimal(curve.getN());
     }
 
+    /**
+     * 根据私钥生成公钥
+     *
+     * @param privateKey 私钥
+     * @return 公钥
+     */
     public ECPoint generatePublicKey(BigInteger privateKey) {
         ECPoint publicKey = curve.multiplyG(privateKey);
         curve.checkPoint(publicKey);
         return publicKey;
     }
 
+    /**
+     * 生成秘钥对
+     *
+     * @return 秘钥对
+     */
     public KeyPair generateKeyPair() {
         BigInteger privateKey = generatePrivateKey();
         ECPoint publicKey = generatePublicKey(privateKey);
         return new KeyPair(privateKey, publicKey);
     }
 
-    public ECPoint generateSymmetricKey(ECPoint otherPublicKey, BigInteger privateKey) {
-        return curve.multiply(otherPublicKey, privateKey);
+    public byte[] keyExchange(int k, byte[] id, KeyPair b, byte[] ida, ECPoint Ra, ECPoint pa) throws KeyAgreementException {
+        // B5_1: 验证 ra 是否满足椭圆曲线方程
+        try {
+            this.curve.checkPoint(Ra);
+        } catch (IllegalArgumentException e) {
+            throw new KeyAgreementException("other public key mismatch curve");
+        }
+        BigInteger n = this.curve.getN();
+        BigInteger the_2_w = BigInteger.valueOf(2).pow((int) Math.ceil(n.bitLength() / 2.0) - 1);
+        // B1: 随机数 rb ∈ [1, n-1]
+        BigInteger rb = RandomUtil.randomBigDecimal(n);
+        // B2: Rb = [rB]G = (x2,y2)
+        ECPoint Rb = this.curve.multiplyG(rb);
+        // B3: x2_
+        BigInteger x2_ = the_2_w.subtract(BigInteger.ONE).and(Rb.getX()).add(the_2_w);
+        // B4: tb = (dB + x2_ · rb) mod n
+        BigInteger tb = x2_.multiply(rb).add(b.getPrivateKey()).mod(n);
+        // B5_2: x1_
+        BigInteger x1_ = the_2_w.subtract(BigInteger.ONE).and(Ra.getX()).add(the_2_w);
+        // B6: v = [h · tb](pa + [x1_]ra) = (xv,yv)
+        ECPoint v = this.curve.multiply(this.curve.add(this.curve.multiply(Ra, x1_), pa), CURVE.getH().multiply(tb));
+        if (this.curve.isInfinity(v)) {
+            throw new KeyAgreementException("V is infinity");
+        }
+        byte[] xv = v.getX().toByteArray();
+        byte[] yv = v.getY().toByteArray();
+        // kb = KDF(xv ∥ yv ∥ za ∥ zb, k)
+        byte[] za = Z(ida, pa);
+        byte[] zb = Z(id, b.getPublicKey());
+        byte[] kb = kdf(k, xv, yv, za, zb);
+        // B8: sb = hash(0x02 ∥ yv ∥ hash(xv ∥ za ∥ zb ∥ x1 ∥ y1 ∥ x2 ∥ y2))
+        byte[] sb = S1(Ra, Rb, za, zb, xv, yv);
+        // TODO: 分角色/分校验 按照指定格式返回
+        return null;
     }
 
-    public byte[] getId() {
-        return id;
+    /**
+     * 5.4.3. 秘钥派生函数
+     *
+     * @param k  要获得的密钥数据的长度
+     * @param zs 比特串 Z
+     * @return 密钥数据
+     */
+    private byte[] kdf(int k, byte[]... zs) {
+        byte[] rst = new byte[k];
+        SM3 sm3 = new SM3();
+        int ct = 0, offset = 0;
+        byte[] buff = new byte[4];
+        while (offset < k) {
+            sm3.reset();
+            for (byte[] z : zs) {
+                sm3.update(z);
+            }
+            PackUtil.intToBigEndian(++ct, buff, 0);
+            sm3.update(buff);
+            int len = Math.min(32, k - offset);
+            System.arraycopy(sm3.digest(), 0, rst, offset, len);
+            offset += len;
+        }
+        return rst;
     }
 
-    public KeyPair getKeyPair() {
-        return keyPair;
+    private byte[] S1(ECPoint Ra, ECPoint Rb, byte[] za, byte[] zb, byte[] xv, byte[] yv) {
+        return GMUtil.sm3(new byte[]{2}, yv,
+                GMUtil.sm3(xv, za, zb,
+                        Ra.getX().toByteArray(), Ra.getY().toByteArray(),
+                        Rb.getX().toByteArray(), Rb.getY().toByteArray()
+                ));
+    }
+
+    private byte[] S2(ECPoint Ra, ECPoint Rb, byte[] za, byte[] zb, byte[] xv, byte[] yv) {
+        return GMUtil.sm3(new byte[]{3}, yv,
+                GMUtil.sm3(xv, za, zb,
+                        Ra.getX().toByteArray(), Ra.getY().toByteArray(),
+                        Rb.getX().toByteArray(), Rb.getY().toByteArray()
+                ));
+    }
+
+    private static ECPoint calculateUV(ECPoint ra, ECPoint pa, BigInteger x1_, BigInteger tb) {
+        return null;
     }
 
     /**

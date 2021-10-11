@@ -30,19 +30,27 @@ public class GMUtil {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    public static byte[] sm3(byte[] bytes) {
-        return new SM3().digest(bytes);
+    public static byte[] sm3(byte[]... bytes) {
+        SM3 sm3 = new SM3();
+        for (byte[] bs : bytes) {
+            sm3.update(bs);
+        }
+        return sm3.digest();
     }
 
-    public static byte[] sm3(String str) {
-        return sm3(getBytes(str));
+    public static byte[] sm3(String... str) {
+        SM3 sm3 = new SM3();
+        for (String s : str) {
+            sm3.update(getBytes(s));
+        }
+        return sm3.digest();
     }
 
-    public static String sm3Hex(byte[] bytes) {
+    public static String sm3Hex(byte[]... bytes) {
         return Hex.encodeHex(sm3(bytes));
     }
 
-    public static String sm3Hex(String str) {
-        return sm3Hex(getBytes(str));
+    public static String sm3Hex(String... str) {
+        return Hex.encodeHex(sm3(str));
     }
 }

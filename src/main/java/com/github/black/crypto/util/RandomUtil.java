@@ -24,15 +24,26 @@ public class RandomUtil {
     /**
      * 随机生成位于 (0,n) 区间的随机数
      *
-     * @param limit 开区间右端点,不包含
+     * @param end 开区间右端点,不包含
      * @return 随机数
      */
-    public static BigInteger randomBigDecimal(BigInteger limit) {
+    public static BigInteger randomBigDecimal(BigInteger end) {
+        return randomBigDecimal(BigInteger.ZERO, end);
+    }
+
+    /**
+     * 随机生成位于 (start,end) 区间的随机数
+     *
+     * @param start 开区间左端点,不包含
+     * @param end   开区间右端点,不包含
+     * @return 随机数
+     */
+    public static BigInteger randomBigDecimal(BigInteger start, BigInteger end) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         BigInteger r;
         do {
-            r = new BigInteger(limit.bitLength(), random);
-        } while (r.compareTo(BigInteger.ZERO) < 1 || r.compareTo(limit) > -1);
+            r = new BigInteger(end.bitLength(), random);
+        } while (r.compareTo(start) < 1 || r.compareTo(end) > -1);
         return r;
     }
 }
