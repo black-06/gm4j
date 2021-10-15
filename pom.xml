@@ -20,6 +20,21 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <!--<artifactId>bcprov-jdk15on</artifactId>-->
+            <artifactId>bcprov-debug-jdk15on</artifactId>
+            <version>1.69</version>
+        </dependency>
+
     </dependencies>
 
 </project>

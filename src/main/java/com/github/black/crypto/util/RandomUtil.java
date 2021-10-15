@@ -17,29 +17,40 @@
 package com.github.black.crypto.util;
 
 import java.math.BigInteger;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
+import java.util.Random;
 
 public class RandomUtil {
 
+    private static final ThreadLocal<SecureRandom> RANDOM = new ThreadLocal<>();
+
     /**
-     * 随机生成位于 (0,n) 区间的随机数
+     * 加密强随机生成位于 (0,n) 区间的随机数
      *
      * @param end 开区间右端点,不包含
      * @return 随机数
      */
-    public static BigInteger randomBigDecimal(BigInteger end) {
-        return randomBigDecimal(BigInteger.ZERO, end);
+    public static BigInteger secureRandomBigDecimal(BigInteger end) {
+        return secureRandomBigDecimal(BigInteger.ZERO, end);
     }
 
     /**
-     * 随机生成位于 (start,end) 区间的随机数
+     * 加密强随机生成位于 (start,end) 区间的随机数
      *
      * @param start 开区间左端点,不包含
      * @param end   开区间右端点,不包含
      * @return 随机数
      */
-    public static BigInteger randomBigDecimal(BigInteger start, BigInteger end) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+    public static BigInteger secureRandomBigDecimal(BigInteger start, BigInteger end) {
+        SecureRandom random = RANDOM.get();
+        if (random == null) {
+            random = new SecureRandom();
+            RANDOM.set(random);
+        }
+        return randomBigDecimal(start, end, random);
+    }
+
+    public static BigInteger randomBigDecimal(BigInteger start, BigInteger end, Random random) {
         BigInteger r;
         do {
             r = new BigInteger(end.bitLength(), random);

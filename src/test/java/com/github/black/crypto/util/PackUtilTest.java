@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto;
+package com.github.black.crypto.util;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 
-public class SM3Test {
+public class PackUtilTest {
 
     @Test
-    public void test() {
-        // Example1
-        Assert.assertEquals("66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0",
-                GMUtil.sm3Hex("abc".getBytes(StandardCharsets.US_ASCII)));
-
-        // Example2
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            builder.append("abcd");
-        }
-        Assert.assertEquals("debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732",
-                GMUtil.sm3Hex(builder.toString().getBytes(StandardCharsets.US_ASCII)));
+    public void testBigEndianToInt() {
+        byte[] bytes = "abcd".getBytes(StandardCharsets.UTF_8);
+        int i = PackUtil.bigEndianToInt(bytes, 0);
+        Assert.assertEquals(1633837924, i);
+        Assert.assertEquals("61626364", Integer.toHexString(i));
     }
 
+    @Test
+    public void testIntToBigEndian() {
+        byte[] bytes = new byte[4];
+        PackUtil.intToBigEndian(1633837924, bytes, 0);
+        Assert.assertEquals("abcd", new String(bytes));
+    }
 }

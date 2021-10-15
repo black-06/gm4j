@@ -14,39 +14,34 @@
  * limitations under the License.
  */
 
-package com.github.black.ec;
+package com.github.black.crypto.algorithm;
 
 import java.math.BigInteger;
 
 /**
- * 二元扩域 <code>F<sub>2<sup>m</sup></sub></code>上的椭圆曲线: y ^ 2 + x * y = x ^ 3 + a * x + b
+ * 秘钥对
  */
-public class ECOverF2m extends ECOverGF {
+public class ECCKeyPair {
 
-    final BigInteger a;
+    /**
+     * 私钥,不应对外暴露
+     */
+    private final BigInteger privateKey;
+    /**
+     * 公钥,可以对外暴露
+     */
+    private final ECPoint publicKey;
 
-    final BigInteger b;
-
-    public ECOverF2m(BigInteger a, BigInteger b) {
-        this.a = a;
-        this.b = b;
+    public ECCKeyPair(BigInteger privateKey, ECPoint publicKey) {
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
     }
 
-    @Override
-    public ECPoint add(ECPoint p, ECPoint q) {
-        return null;
+    public ECPoint getPublicKey() {
+        return publicKey;
     }
 
-    @Override
-    public void checkCurve() {
-        // 验证 b
-        if (b.equals(BigInteger.ZERO)) {
-            throw new IllegalArgumentException("B should not be 0");
-        }
-    }
-
-    @Override
-    public void checkPoint(ECPoint p) {
-
+    public BigInteger getPrivateKey() {
+        return privateKey;
     }
 }

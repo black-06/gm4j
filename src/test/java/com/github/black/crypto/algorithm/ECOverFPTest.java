@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.black.ec;
+package com.github.black.crypto.algorithm;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigInteger;
 
-public class ECOverPFTest {
+public class ECOverFPTest {
 
     @Test
     public void testMultiply() {
@@ -30,7 +30,7 @@ public class ECOverPFTest {
             is[i] = BigInteger.valueOf(i);
         }
 
-        ECOverGF ec = new ECOverPF(is[2], is[3], is[97], null, null, is[5], null);
+        ECOverFP ec = new ECOverFP(is[2], is[3], is[97]);
 
         ECPoint p = new ECPoint(is[3], is[6]);
 
@@ -53,7 +53,7 @@ public class ECOverPFTest {
         ec.checkPoint(r);
 
         r = ec.multiply(p, is[5]);
-        Assert.assertEquals(r, ECOverGF.INFINITY);
+        Assert.assertEquals(r, ECPoint.INFINITY);
         ec.checkPoint(r);
 
         r = ec.multiply(p, is[6]);

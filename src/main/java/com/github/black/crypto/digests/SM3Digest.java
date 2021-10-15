@@ -47,7 +47,7 @@ import java.util.Arrays;
  *
  * }</pre>
  */
-public class SM3 extends MessageDigest {
+public class SM3Digest extends MessageDigest {
 
     /**
      * 4.1.初始值
@@ -121,11 +121,11 @@ public class SM3 extends MessageDigest {
     /**
      * 消息总长度,64位
      */
-    private long l;
+    private long len;
 
     private int[] vi;
 
-    public SM3() {
+    public SM3Digest() {
         super("MessageDigest.SM3");
         engineReset();
     }
@@ -205,40 +205,29 @@ public class SM3 extends MessageDigest {
      * 5.2.填充
      */
     private void fill() {
-        engineUpdate((byte) 128);
+        this.write((byte) 128);
         // 填充 0 直到 group 剩余 2 位
         while (this.buffOffset != 0) {
-            engineUpdate((byte) 0);
+            this.write((byte) 0);
         }
         while (this.groupOffset != GROUP_SIZE - 2) {
             this.group[this.groupOffset++] = 0;
         }
         // 存储数据总长度
-        l *= 8;
-        this.group[this.groupOffset++] = (int) (l >>> 32);
-        this.group[this.groupOffset++] = (int) l;
+        this.len *= 8;
+        this.group[this.groupOffset++] = (int) (this.len >>> 32);
+        this.group[this.groupOffset++] = (int) this.len;
     }
 
-    /**
-     * 重置 MessageDigest 以供下一次使用
-     */
-    @Override
-    protected void engineReset() {
-        this.group = new int[GROUP_SIZE];
-        this.groupOffset = 0;
-        this.buff = new byte[BUFF_SIZE];
-        this.buffOffset = 0;
-        this.l = 0;
-        this.vi = Arrays.copyOf(IV, IV.length);
-    }
 
     /**
-     * 使用指定的字节更新 MessageDigest
+     * 将字节写入 4 字节缓冲区,
+     * 当缓冲区满时,将其打包为 int 存入 16 整形组中,
+     * 当整形组满时,将其压缩至 vi
      *
      * @param input 用于更新的字节
      */
-    @Override
-    protected void engineUpdate(byte input) {
+    private void write(byte input) {
         this.buff[this.buffOffset++] = input;
         if (this.buffOffset == BUFF_SIZE) {
             this.group[this.groupOffset++] = PackUtil.bigEndianToInt(this.buff, 0);
@@ -251,6 +240,30 @@ public class SM3 extends MessageDigest {
     }
 
     /**
+     * 重置 MessageDigest 以供下一次使用
+     */
+    @Override
+    protected void engineReset() {
+        this.group = new int[GROUP_SIZE];
+        this.groupOffset = 0;
+        this.buff = new byte[BUFF_SIZE];
+        this.buffOffset = 0;
+        this.len = 0;
+        this.vi = Arrays.copyOf(IV, IV.length);
+    }
+
+    /**
+     * 使用指定的字节更新 MessageDigest
+     *
+     * @param input 用于更新的字节
+     */
+    @Override
+    protected void engineUpdate(byte input) {
+        this.len++;
+        this.write(input);
+    }
+
+    /**
      * 使用指定的字节数组更新 MessageDigest,从指定的偏移量开始。
      *
      * @param input  用于更新的字节数组
@@ -260,9 +273,9 @@ public class SM3 extends MessageDigest {
     @Override
     protected void engineUpdate(byte[] input, int offset, int len) {
         len = Math.max(0, len);
-        this.l += len;
+        this.len += len;
         for (int i = offset; i < len; i++) {
-            engineUpdate(input[i]);
+            this.write(input[i]);
         }
     }
 

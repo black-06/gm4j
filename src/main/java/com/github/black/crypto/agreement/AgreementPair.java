@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto.pojo;
-
-import java.math.BigInteger;
+package com.github.black.crypto.agreement;
 
 /**
- * 签名信息
+ * 协商信息对
  */
-public class Signature {
+public class AgreementPair {
 
-    private final BigInteger r;
-    private final BigInteger s;
+    /**
+     * 校验信息
+     */
+    private final byte[] s;
+    /**
+     * 协商得到的对称加密秘钥,不应对外暴露.
+     */
+    private final byte[] privateSymmetricKey;
 
-    public Signature(BigInteger r, BigInteger s) {
-        this.r = r;
+    public AgreementPair(byte[] s, byte[] privateSymmetricKey) {
         this.s = s;
+        this.privateSymmetricKey = privateSymmetricKey;
     }
 
-    public BigInteger getR() {
-        return r;
-    }
-
-    public BigInteger getS() {
+    public byte[] getS() {
         return s;
+    }
+
+    public byte[] getPrivateSymmetricKey() {
+        return privateSymmetricKey;
     }
 }

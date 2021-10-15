@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto;
+package com.github.black.crypto.algorithm;
 
-import com.github.black.crypto.digests.ECC;
-import com.github.black.crypto.pojo.KeyPair;
-import com.github.black.crypto.pojo.Signature;
-import com.github.black.ec.ECPoint;
+import com.github.black.crypto.signer.ECCSigner;
+import com.github.black.crypto.signer.Signature;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,28 +40,27 @@ public class ECCTest {
 
     @Test
     public void testECDHE() {
-        ECC ecc = SECP256K1;
         // a 的秘钥对
-        KeyPair a = ecc.generateKeyPair();
+        ECCKeyPair a = SECP256K1.generateKeyPair();
         // b 的秘钥对
-        KeyPair b = ecc.generateKeyPair();
+        ECCKeyPair b = SECP256K1.generateKeyPair();
         // 共享秘钥 S
-        ECPoint sA = ecc.generateSymmetricKey(a.getPrivateKey(), b.getPublicKey());
-        ECPoint sB = ecc.generateSymmetricKey(b.getPrivateKey(), a.getPublicKey());
+        ECPoint sA = SECP256K1.multiply(b.getPublicKey(), a.getPrivateKey());
+        ECPoint sB = SECP256K1.multiply(a.getPublicKey(), b.getPrivateKey());
         Assert.assertEquals(sA, sB);
     }
 
     @Test
     public void testSignature() {
-        ECC ecc = SECP256K1;
+        ECCSigner signer = new ECCSigner(SECP256K1);
         // 消息
         String msg = "Hello!";
         // 秘钥对
-        KeyPair p = ecc.generateKeyPair();
+        ECCKeyPair p = SECP256K1.generateKeyPair();
         // 签名
-        Signature s = ecc.sign(p.getPrivateKey(), msg);
+        Signature s = signer.sign(p.getPrivateKey(), msg);
         // 验证签名
-        Assert.assertTrue(ecc.verify(p.getPublicKey(), s, msg));
-        Assert.assertFalse(ecc.verify(p.getPublicKey(), s, "Hi there!"));
+        Assert.assertTrue(signer.verify(p.getPublicKey(), s, msg));
+        Assert.assertFalse(signer.verify(p.getPublicKey(), s, "Hi there!"));
     }
 }

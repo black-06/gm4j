@@ -26,7 +26,8 @@ public class Hex {
     private static final char[] DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     /**
-     * 将字节数组转换为十六进制字符串
+     * 将字节数组转换为十六进制字符串.
+     * 且十六进制字符串的长度(toCharArray().length)是字节数组的 2 倍
      *
      * @param bytes 字节数组
      * @return 十六进制字符串

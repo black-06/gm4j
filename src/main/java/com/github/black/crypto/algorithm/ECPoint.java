@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.black.ec;
+package com.github.black.crypto.algorithm;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -23,6 +23,16 @@ import java.util.Objects;
  * 椭圆曲线上的一个点
  */
 public class ECPoint {
+
+    /**
+     * O点,即无穷远点
+     */
+    public static final ECPoint INFINITY = new ECPoint(null, null) {
+        @Override
+        public String toString() {
+            return "INFINITY";
+        }
+    };
 
     private final BigInteger x;
     private final BigInteger y;

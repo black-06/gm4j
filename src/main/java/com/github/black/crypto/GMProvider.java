@@ -16,8 +16,8 @@
 
 package com.github.black.crypto;
 
-import com.github.black.crypto.digests.SM2;
-import com.github.black.crypto.digests.SM3;
+import com.github.black.crypto.digests.SM2Digest;
+import com.github.black.crypto.digests.SM3Digest;
 
 import java.security.Provider;
 
@@ -28,10 +28,10 @@ public class GMProvider extends Provider {
 
     public GMProvider() {
         super("GM", 1.0, "GM Security Provider v1.0 By Mr.Black");
-        String sm2 = SM2.class.getName();
+        String sm2 = SM2Digest.class.getName();
         super.put("MessageDigest.SM2", sm2);
         super.put("Alg.Alias.MessageDigest.1.2.156.10197.1.301", sm2);
-        String sm3 = SM3.class.getName();
+        String sm3 = SM3Digest.class.getName();
         super.put("MessageDigest.SM3", sm3);
         super.put("Alg.Alias.MessageDigest.1.2.156.10197.1.401", sm3);
     }

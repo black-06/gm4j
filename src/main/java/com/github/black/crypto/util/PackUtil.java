@@ -17,8 +17,6 @@
 package com.github.black.crypto.util;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class PackUtil {
 
@@ -69,7 +67,6 @@ public class PackUtil {
         if (count > length) {
             throw new IllegalArgumentException("standard length exceeded for value");
         }
-
         byte[] tmp = new byte[length];
         System.arraycopy(bytes, start, tmp, tmp.length - count, count);
         return tmp;

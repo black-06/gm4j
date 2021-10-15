@@ -14,30 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.black.crypto.pojo;
+package com.github.black.crypto.digests;
 
-import com.github.black.ec.ECPoint;
-
-import java.math.BigInteger;
-
-/**
- * 秘钥对
- */
-public class KeyPair {
-
-    private final BigInteger privateKey;
-    private final ECPoint publicKey;
-
-    public KeyPair(BigInteger privateKey, ECPoint publicKey) {
-        this.privateKey = privateKey;
-        this.publicKey = publicKey;
-    }
-
-    public ECPoint getPublicKey() {
-        return publicKey;
-    }
-
-    public BigInteger getPrivateKey() {
-        return privateKey;
-    }
+public class SM2Digest {
 }

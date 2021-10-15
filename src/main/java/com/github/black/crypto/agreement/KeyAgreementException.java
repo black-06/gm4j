@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.black.exception;
+package com.github.black.crypto.agreement;
 
 import java.security.GeneralSecurityException;
 
@@ -23,6 +23,12 @@ import java.security.GeneralSecurityException;
  */
 public class KeyAgreementException extends GeneralSecurityException {
 
+    /**
+     * 构造具有指定详细消息的 KeyAgreementException.
+     * 详细消息是描述此特定异常的字符串.
+     *
+     * @param msg 详细消息
+     */
     public KeyAgreementException(String msg) {
         super(msg);
     }
