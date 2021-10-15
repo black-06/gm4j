@@ -21,9 +21,9 @@ import com.github.black.crypto.algorithm.ECCKeyPair;
 import com.github.black.crypto.algorithm.ECPoint;
 import com.github.black.crypto.algorithm.SM2;
 import com.github.black.crypto.algorithm.SM2KeyPair;
-import org.bouncycastle.util.Arrays;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * 中文 PDF3 密钥交换协议 http://www.gmbz.org.cn/main/viewfile/20180108023456003485.html
@@ -77,7 +77,7 @@ public class SM2Agreement {
         if (otherInfo.isInitiator()) {
             byte[] za = otherInfo.getZ();
             // 当请求方携带 s 时,进行校验
-            if (so != null && !Arrays.constantTimeAreEqual(s2sa(xu, yu, za, z, Ro, R), so)) {
+            if (so != null && !Arrays.equals(s2sa(xu, yu, za, z, Ro, R), so)) {
                 throw new KeyAgreementException("initiator's tag mismatch");
             }
             // 生成 s
@@ -88,7 +88,7 @@ public class SM2Agreement {
         } else {
             byte[] zb = otherInfo.getZ();
             // 当响应方携带 s 时,进行校验
-            if (so != null && !Arrays.constantTimeAreEqual(s1sb(xu, yu, z, zb, R, Ro), so)) {
+            if (so != null && !Arrays.equals(s1sb(xu, yu, z, zb, R, Ro), so)) {
                 throw new KeyAgreementException("responder's tag mismatch");
             }
             // 生成 s

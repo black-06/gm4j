@@ -37,4 +37,37 @@ public class PackUtilTest {
         PackUtil.intToBigEndian(1633837924, bytes, 0);
         Assert.assertEquals("abcd", new String(bytes));
     }
+
+    private static final String data1 = "test_array_1_to_connect_";
+    private static final String data2 = ",hello;";
+    private static final String data3 = "??? what is up ?";
+
+    @Test
+    public void testConnect0() {
+        Assert.assertArrayEquals(new byte[0], PackUtil.connect(new byte[0], null, null, new byte[0]));
+    }
+
+    @Test
+    public void testConnect1() {
+        byte[] rst = PackUtil.connect(
+                data1.getBytes(StandardCharsets.UTF_8),
+                data2.getBytes(StandardCharsets.UTF_8),
+                data3.getBytes(StandardCharsets.UTF_8)
+        );
+        Assert.assertNotNull(rst);
+        Assert.assertEquals(data1 + data2 + data3, new String(rst, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testConnect2() {
+        byte[] rst = PackUtil.connect(
+                null,
+                data1.getBytes(StandardCharsets.UTF_8),
+                new byte[0],
+                data2.getBytes(StandardCharsets.UTF_8),
+                data3.getBytes(StandardCharsets.UTF_8),
+                null
+        );
+        Assert.assertEquals(data1 + data2 + data3, new String(rst, StandardCharsets.UTF_8));
+    }
 }

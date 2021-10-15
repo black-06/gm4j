@@ -71,4 +71,21 @@ public class PackUtil {
         System.arraycopy(bytes, start, tmp, tmp.length - count, count);
         return tmp;
     }
+
+    public static byte[] connect(byte[]... byteArrays) {
+        int len = 0;
+        for (byte[] bytes : byteArrays) {
+            if (bytes == null) continue;
+            len += bytes.length;
+        }
+        byte[] rst = new byte[len];
+        if (len == 0) return rst;
+        int index = 0;
+        for (byte[] bytes : byteArrays) {
+            if (bytes == null) continue;
+            System.arraycopy(bytes, 0, rst, index, bytes.length);
+            index += bytes.length;
+        }
+        return rst;
+    }
 }
