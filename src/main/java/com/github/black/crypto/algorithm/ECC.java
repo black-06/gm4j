@@ -16,6 +16,7 @@
 
 package com.github.black.crypto.algorithm;
 
+import com.github.black.crypto.util.PackUtil;
 import com.github.black.crypto.util.RandomUtil;
 
 import java.math.BigInteger;
@@ -69,7 +70,7 @@ public class ECC extends ECOverFP {
     @Override
     public void checkPoint(ECPoint p) {
         super.checkPoint(p);
-        if (this.multiply(p, this.getN()) == ECPoint.INFINITY) {
+        if (this.multiply(p, this.getN()).isInfinity()) {
             return;
         }
         throw new IllegalArgumentException("illegal public key: " + p);
@@ -97,5 +98,46 @@ public class ECC extends ECOverFP {
         BigInteger privateKey = RandomUtil.secureRandomBigDecimal(this.getN());
         ECPoint publicKey = this.multiplyG(privateKey);
         return new ECCKeyPair(privateKey, publicKey);
+    }
+
+    /**
+     * 点到字节串的转换
+     *
+     * @param point    待转换的点
+     * @param compress 是否采用压缩形式
+     * @return 字节串
+     */
+    public byte[] serializePoint(ECPoint point, boolean compress) {
+        if (point.isInfinity()) {
+            return new byte[1];
+        }
+        byte[] X = PackUtil.toUnsignedByteArray(point.getX(), (this.getP().bitLength() + 7) / 8);
+        if (compress) {
+            byte[] s = new byte[X.length + 1];
+            // PC
+            s[0] = (byte) (point.getY().testBit(0) ? 0x03 : 0x02);
+            System.arraycopy(X, 0, s, 1, X.length);
+            // s = PC ∥ X1
+            return s;
+        } else {
+            byte[] Y = PackUtil.toUnsignedByteArray(point.getY(), (this.getP().bitLength() + 7) / 8);
+            byte[] s = new byte[X.length + Y.length + 1];
+            // PC
+            s[0] = 0x04;
+            System.arraycopy(X, 0, s, 1, X.length);
+            System.arraycopy(Y, 0, s, X.length + 1, Y.length);
+            // s = PC ∥ X1 ∥ Y1
+            return s;
+        }
+    }
+
+    /**
+     * 字节串到点的转换
+     *
+     * @param bytes 待转换的字节串
+     * @return 点
+     */
+    public ECPoint deserializePoint(byte[] bytes) {
+        return null;
     }
 }

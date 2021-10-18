@@ -57,16 +57,24 @@ public class SM2Agreement {
         // A2,B2: R = [r]G = (x2,y2)
         ECPoint R = r.getPublicKey();
         BigInteger n = this.sm2.getN();
-        BigInteger the_2_w = BigInteger.valueOf(2).pow((int) Math.ceil(n.bitLength() / 2.0) - 1);
-        // A4,B3: x_
-        BigInteger x_ = the_2_w.subtract(BigInteger.ONE).and(R.getX()).add(the_2_w);
+        /*
+         * A4,B3: x_
+         * 原本计算 the_2_w = 2 ^ w ,其中 w = ⌈ ( ⌈ log2(n) ⌉ / 2 ) ⌉ − 1
+         * // BigInteger the_2_w = BigInteger.valueOf(2).pow((int) Math.ceil(n.bitLength() / 2.0) - 1);
+         * 再计算 x_ =  the_2_w + ( x & ( the_2_w − 1 ) )
+         * // BigInteger x_ = the_2_w.subtract(BigInteger.ONE).and(R.getX()).add(the_2_w);
+         * 此处可能应用到数学方法化简了,具体化简手段未知.
+         * 见 (bouncy castle) org.bouncycastle.crypto.agreement.SM2KeyExchange #reduce
+         * */
+        int w = (int) Math.ceil(n.bitLength() / 2.0) - 1;
+        BigInteger x_ = R.getX().and(BigInteger.ONE.shiftRight(w).subtract(BigInteger.ONE)).setBit(w);
         // A5,B4: t = (d + x_ · r) mod n
         BigInteger t = x_.multiply(r.getPrivateKey()).add(keyPair.getPrivateKey()).mod(n);
         // A6_2,B5_2: xo_
-        BigInteger xo_ = the_2_w.subtract(BigInteger.ONE).and(Ro.getX()).add(the_2_w);
+        BigInteger xo_ = Ro.getX().and(BigInteger.ONE.shiftRight(w).subtract(BigInteger.ONE)).setBit(w);
         // A7,B6: u = [h · t](po + [xo_]Ro) = (xu,yu)
         ECPoint u = this.sm2.multiply(this.sm2.add(this.sm2.multiply(Ro, xo_), otherInfo.getP()), this.sm2.getH().multiply(t));
-        if (u == ECPoint.INFINITY) {
+        if (u.isInfinity()) {
             throw new KeyAgreementException("u is infinity");
         }
         byte[] xu = u.getX().toByteArray();

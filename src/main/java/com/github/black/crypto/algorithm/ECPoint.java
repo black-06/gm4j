@@ -50,6 +50,10 @@ public class ECPoint {
         return y;
     }
 
+    public boolean isInfinity() {
+        return INFINITY == this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

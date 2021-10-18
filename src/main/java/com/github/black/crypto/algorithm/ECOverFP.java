@@ -71,10 +71,10 @@ public class ECOverFP {
      */
     public ECPoint add(ECPoint p, ECPoint q) {
         // q 为 0,则 p + 0 = p
-        if (p == ECPoint.INFINITY) {
+        if (p.isInfinity()) {
             return q;
         }
-        if (q == ECPoint.INFINITY) {
+        if (q.isInfinity()) {
             return p;
         }
         // 斜率
@@ -106,7 +106,7 @@ public class ECOverFP {
     public ECPoint multiply(ECPoint p, BigInteger n) {
         ECPoint rst = ECPoint.INFINITY;
         ECPoint added = p;
-        for (int i = 0; i < n.bitLength(); i++) {
+        for (int i = 0, len = n.bitLength(); i < len; i++) {
             if (n.testBit(i)) {
                 rst = add(rst, added);
             }
@@ -130,7 +130,7 @@ public class ECOverFP {
      * 验证点 P 是否属于椭圆曲线
      */
     public void checkPoint(ECPoint p) {
-        if (p == ECPoint.INFINITY) {
+        if (p.isInfinity()) {
             return;
         }
         // y ^ 2 = x ^ 3 + a * x + b mod p
